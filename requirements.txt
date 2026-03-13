@@ -1,0 +1,43 @@
+# FastAPI and web server
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+python-multipart
+
+# LangGraph and LangChain
+langgraph
+langchain
+langchain-core
+
+# Azure OpenAI
+openai
+httpx
+tiktoken
+
+# Anthropic Claude
+anthropic
+
+# Database
+clickhouse-connect
+psycopg2-binary
+pymysql  # Required for MySQL support
+sqlalchemy
+duckdb
+
+# Data Analysis
+polars
+pandas
+openpyxl
+pyarrow  # Required for Pandas→Polars conversion with nullable dtypes (Int64, string, datetime64[ns])
+
+# SQL Validation
+sqlglot
+
+# Azure SDK (for Key Vault integration)
+azure-identity
+azure-keyvault-secrets
+
+# Utilities
+python-dotenv
+
