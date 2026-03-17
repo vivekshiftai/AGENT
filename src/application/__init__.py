@@ -1,2 +1,1 @@
-"""Application package."""
-
+"""Application layer: use cases, DTOs."""

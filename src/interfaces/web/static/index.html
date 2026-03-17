@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSBot – Production Planning</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/vis-timeline@7.7.3/styles/vis-timeline-graph2d.min.css">
+  <script src="https://unpkg.com/vis-timeline@7.7.3/standalone/umd/vis-timeline-graph2d.min.js"></script>
+</head>
+<body>
+  <nav class="tabs">
+    <button type="button" class="tab active" data-tab="chat">Chat</button>
+    <button type="button" class="tab" data-tab="datasources">Data sources</button>
+  </nav>
+  <div class="layout">
+    <section id="panel-chat" class="panel active">
+      <section class="chat-section">
+        <h1>Chat</h1>
+        <div id="chat-datasource-wrap" class="chat-datasource-wrap">
+          <div class="chat-datasource-row">
+            <label for="chat-datasource">Use datasource(s) for this query:</label>
+            <select id="chat-datasource" multiple title="Hold Ctrl/Cmd to select multiple. Empty = use all.">
+              <option value="">All</option>
+            </select>
+          </div>
+        </div>
+        <div id="chat-no-datasource-msg" class="chat-no-datasource-msg" style="display: none;">
+          <p>No datasource added yet. Add a datasource first to run queries.</p>
+          <button type="button" id="chat-go-add-datasource">Add data source</button>
+        </div>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="e.g. Show production demand between Jan 1 and Jan 15" />
+          <button type="button" id="chat-send">Send</button>
+        </div>
+        <div class="actions">
+          <button type="button" id="btn-plan">Get production plan</button>
+        </div>
+      </section>
+      <section class="gantt-section">
+        <h2>Production Plan Timeline</h2>
+        <div class="gantt-legend">
+          <span><i class="swatch swatch-production"></i> Production</span>
+          <span><i class="swatch swatch-setup"></i> Setup</span>
+          <span><i class="swatch swatch-cleaning"></i> Cleaning</span>
+          <span><i class="swatch swatch-hold"></i> Hold</span>
+          <span><i class="swatch swatch-precool"></i> Pre-Cool</span>
+          <span><i class="swatch swatch-maintenance"></i> Maintenance</span>
+          <span><i class="swatch swatch-blocked"></i> Blocked</span>
+          <span><i class="swatch swatch-at-risk"></i> Exception</span>
+        </div>
+        <div id="gantt-hierarchy"></div>
+      </section>
+      <section class="sales-section">
+        <h2>Sales Orders (grouped by material)</h2>
+        <div id="sales-orders" class="sales-orders"></div>
+      </section>
+      <section id="summary-panel" class="summary-panel" style="display:none;"></section>
+      <section id="allergen-warnings-panel" class="allergen-warnings-panel" style="display:none;"></section>
+      <section id="exceptions-panel" class="exceptions-panel" style="display:none;"></section>
+      <section class="planning-details-section">
+        <h2>Planning Details</h2>
+        <div class="planning-tabs">
+          <button type="button" class="planning-tab active" data-ptab="inventory">Inventory</button>
+          <button type="button" class="planning-tab" data-ptab="shortages">Shortages</button>
+          <button type="button" class="planning-tab" data-ptab="machines">Machines</button>
+          <button type="button" class="planning-tab" data-ptab="validation">Validation</button>
+          <button type="button" class="planning-tab" data-ptab="allergens">Allergens</button>
+          <button type="button" class="planning-tab" data-ptab="exceptions">Exceptions</button>
+        </div>
+        <div id="planning-panel-inventory" class="planning-panel active">
+          <div id="inventory-summary" class="planning-summary"></div>
+        </div>
+        <div id="planning-panel-shortages" class="planning-panel">
+          <div id="material-shortages" class="planning-content"></div>
+        </div>
+        <div id="planning-panel-machines" class="planning-panel">
+          <div id="machine-schedules" class="planning-content"></div>
+        </div>
+        <div id="planning-panel-validation" class="planning-panel">
+          <div id="validation-issues" class="planning-content"></div>
+        </div>
+        <div id="planning-panel-allergens" class="planning-panel">
+          <div id="allergen-warnings" class="planning-content"></div>
+        </div>
+        <div id="planning-panel-exceptions" class="planning-panel">
+          <div id="scheduling-exceptions" class="planning-content"></div>
+        </div>
+      </section>
+      <section class="risk-banner" id="risk-banner" style="display: none;">
+        <div class="risk-content">
+          <span class="risk-icon">⚠️</span>
+          <span class="risk-text" id="risk-text"></span>
+        </div>
+      </section>
+    </section>
+    <section id="panel-datasources" class="panel">
+      <section class="datasources-section">
+        <h1>Manage data sources</h1>
+        <div class="ds-form">
+          <h2>Add datasource</h2>
+          <div class="form-row">
+            <label>Name</label>
+            <input type="text" id="ds-name" placeholder="My ClickHouse" />
+          </div>
+          <div class="form-row">
+            <label>Type</label>
+            <select id="ds-type">
+              <option value="postgres">PostgreSQL</option>
+              <option value="clickhouse">ClickHouse</option>
+              <option value="mysql">MySQL</option>
+              <option value="sap">SAP</option>
+              <option value="excel">Excel</option>
+              <option value="csv">CSV</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Host</label>
+            <input type="text" id="ds-host" placeholder="localhost" />
+          </div>
+          <div class="form-row">
+            <label>Port</label>
+            <input type="number" id="ds-port" placeholder="5432" />
+          </div>
+          <div class="form-row">
+            <label>Database</label>
+            <input type="text" id="ds-database" placeholder="mydb" />
+          </div>
+          <div class="form-row">
+            <label>Username</label>
+            <input type="text" id="ds-username" placeholder="user" />
+          </div>
+          <div class="form-row">
+            <label>Password</label>
+            <input type="password" id="ds-password" placeholder="••••••••" />
+          </div>
+          <div class="form-actions">
+            <button type="button" id="ds-test">Test connection</button>
+            <button type="button" id="ds-save">Save datasource</button>
+          </div>
+          <div id="ds-form-message" class="form-message"></div>
+        </div>
+        <div class="ds-list">
+          <h2>Existing datasources</h2>
+          <ul id="ds-list"></ul>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <!-- Gantt Detail Overlay -->
+  <div id="gantt-detail-overlay" class="gantt-overlay" onclick="GanttDetail.closePanel()"></div>
+  <!-- Gantt Detail Slide-in Panel -->
+  <div id="gantt-detail-panel" class="gantt-detail-panel"></div>
+
+  <script src="gantt_detail.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

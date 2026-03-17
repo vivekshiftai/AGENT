@@ -1,43 +1,32 @@
-# FastAPI and web server
-fastapi
-uvicorn[standard]
+# Data access layer dependencies
+
+# Configuration
 pydantic
 pydantic-settings
-python-multipart
+python-dotenv
 
-# LangGraph and LangChain
-langgraph
-langchain
-langchain-core
-
-# Azure OpenAI
-openai
-httpx
-tiktoken
-
-# Anthropic Claude
-anthropic
-
-# Database
+# Database connections
 clickhouse-connect
 psycopg2-binary
-pymysql  # Required for MySQL support
-sqlalchemy
+pymysql
 duckdb
 
-# Data Analysis
-polars
+# Data processing
 pandas
 openpyxl
-pyarrow  # Required for Pandas→Polars conversion with nullable dtypes (Int64, string, datetime64[ns])
+pyarrow
 
-# SQL Validation
-sqlglot
+# SAP Datasphere (OData API)
+httpx
 
-# Azure SDK (for Key Vault integration)
+# Azure Key Vault (SAP token storage)
 azure-identity
 azure-keyvault-secrets
 
-# Utilities
-python-dotenv
+# API and server
+fastapi
+uvicorn[standard]
 
+# AI / LLM (optional for chat)
+anthropic
+openai
